@@ -22,9 +22,12 @@ package io.github.ericmedvet.robotevo2d.main.agents.selfassemblyvsr;
 import io.github.ericmedvet.mrsim2d.core.ActionPerformer;
 import io.github.ericmedvet.mrsim2d.core.EmbodiedAgent;
 import io.github.ericmedvet.mrsim2d.core.actions.CreateVoxel;
+import io.github.ericmedvet.mrsim2d.core.actions.TranslateBodyAt;
 import io.github.ericmedvet.mrsim2d.core.bodies.Body;
 import io.github.ericmedvet.mrsim2d.core.bodies.Voxel;
 import io.github.ericmedvet.mrsim2d.core.engine.ActionException;
+import io.github.ericmedvet.mrsim2d.core.geometry.BoundingBox;
+import io.github.ericmedvet.mrsim2d.core.geometry.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,10 +56,22 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
               .perform(new CreateVoxel(this.voxelSideLength, this.voxelMass, this.material), this)
               .outcome()
               .orElseThrow();
-
-      // TODO: Missing initial position of voxels.
-
       this.unitBody.add(body);
+    }
+    this.setupUnits(actionPerformer);
+  }
+
+  private void setupUnits(ActionPerformer ap) {
+    int sq = (int) Math.ceil(Math.sqrt(this.unitNumber));
+    for (int i = 0; i < this.unitNumber; i++) {
+      int x = i / sq;
+      int y = i % sq;
+      ap.perform(
+          new TranslateBodyAt(
+              this.unitBody.get(i),
+              BoundingBox.Anchor.LU,
+              new Point(x * voxelSideLength, y * voxelSideLength)),
+          this);
     }
   }
 
