@@ -25,6 +25,7 @@ import io.github.ericmedvet.mrsim2d.core.actions.CreateVoxel;
 import io.github.ericmedvet.mrsim2d.core.bodies.Body;
 import io.github.ericmedvet.mrsim2d.core.bodies.Voxel;
 import io.github.ericmedvet.mrsim2d.core.engine.ActionException;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
@@ -39,7 +40,7 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
       int unitNumber, Voxel.Material material, double voxelSideLength, double voxelMass) {
     this.unitNumber = unitNumber;
     this.material = material;
-    this.unitBody = List.of();
+    this.unitBody = new ArrayList<>(unitNumber);
     this.voxelSideLength = voxelSideLength;
     this.voxelMass = voxelMass;
   }
@@ -49,7 +50,7 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
     for (int i = 0; i < this.unitNumber; i++) {
       Voxel body =
           actionPerformer
-              .perform(new CreateVoxel(this.voxelSideLength, this.voxelMass, this.material))
+              .perform(new CreateVoxel(this.voxelSideLength, this.voxelMass, this.material), this)
               .outcome()
               .orElseThrow();
 
