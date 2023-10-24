@@ -65,7 +65,7 @@ public class NumSelfAssemblyVSR extends AbstractSelfAssemblyVSR implements NumMu
     // this.directionalAttach = directionalAttach;
     this.unitNDS = unitNDS;
     this.sensors = sensors;
-    this.inputs = new double[unitNumber][nOfInputs(sensors.size(), nSignals)];
+    this.inputs = new double[unitNumber][nOfInputs(this.sensors.get(0).size(), nSignals)];
     this.outputs =
         new double[unitNumber]
             [nOfOutputs(nSignals /*, directionalCommunication, directionalAttach*/)];
@@ -92,16 +92,19 @@ public class NumSelfAssemblyVSR extends AbstractSelfAssemblyVSR implements NumMu
   @Override
   public List<? extends Action<?>> act(double t, List<ActionOutcome<?, ?>> previousActionOutcomes) {
     // Read inputs.
-    int PAOi = 0;
-    for (var ndsIn : inputs) {
-      for (int i = 0; i < ndsIn.length; i++) {
-        ActionOutcome<?, ?> outcome = previousActionOutcomes.get(PAOi);
-        if (outcome.action() instanceof Sense<?>) {
-          @SuppressWarnings("unchecked")
-          ActionOutcome<? extends Sense<Voxel>, Double> o =
-              (ActionOutcome<? extends Sense<Voxel>, Double>) outcome;
-          ndsIn[i] = INPUT_RANGE.denormalize(o.action().range().normalize(o.outcome().orElse(0d)));
-          PAOi++;
+    if (!previousActionOutcomes.isEmpty()) {
+      int PAOi = 0;
+      for (var ndsIn : inputs) {
+        for (int i = 0; i < ndsIn.length; i++) {
+          ActionOutcome<?, ?> outcome = previousActionOutcomes.get(PAOi);
+          if (outcome.action() instanceof Sense<?>) {
+            @SuppressWarnings("unchecked")
+            ActionOutcome<? extends Sense<Voxel>, Double> o =
+                (ActionOutcome<? extends Sense<Voxel>, Double>) outcome;
+            ndsIn[i] =
+                INPUT_RANGE.denormalize(o.action().range().normalize(o.outcome().orElse(0d)));
+            PAOi++;
+          }
         }
       }
     }
@@ -157,7 +160,6 @@ public class NumSelfAssemblyVSR extends AbstractSelfAssemblyVSR implements NumMu
       }
       aI.addAndGet(nSignals);
     }
-
     return actions;
   }
 
