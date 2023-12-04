@@ -86,7 +86,7 @@ public class NumSelfAssemblyVSR extends AbstractSelfAssemblyVSR implements NumMu
         /*dirCom ?*/ 4 * nSignals /* : nSignals*/) // Output communications to near units.
         + (
         /*dirAtt ? */ 4 /*: 1*/) // Attach actuation.
-        + 1; // Voxel actuation.
+        + 4; // Voxel actuation.
   }
 
   @Override
@@ -130,8 +130,16 @@ public class NumSelfAssemblyVSR extends AbstractSelfAssemblyVSR implements NumMu
     // Generate actuation actions.
     actions.addAll(
         IntStream.range(0, unitNumber)
-            .mapToObj(i -> new ActuateVoxel(unitBody.get(i), outputs[i][aI.get()]))
+            .mapToObj(
+                i ->
+                    new ActuateVoxel(
+                        unitBody.get(i),
+                        outputs[i][aI.get()],
+                        outputs[i][aI.get() + 1],
+                        outputs[i][aI.get() + 2],
+                        outputs[i][aI.get() + 3]))
             .toList());
+    aI.addAndGet(3);
     // Generate attach actions.
     for (var side : Voxel.Side.values()) {
       aI.incrementAndGet();
