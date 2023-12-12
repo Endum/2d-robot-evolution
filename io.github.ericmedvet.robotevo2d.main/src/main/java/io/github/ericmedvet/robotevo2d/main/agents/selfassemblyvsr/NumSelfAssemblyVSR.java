@@ -40,7 +40,7 @@ public class NumSelfAssemblyVSR extends AbstractSelfAssemblyVSR implements NumMu
 
   private static final DoubleRange INPUT_RANGE = DoubleRange.SYMMETRIC_UNIT;
   private static final DoubleRange OUTPUT_RANGE = DoubleRange.SYMMETRIC_UNIT;
-  private static final double ATTACH_ACTION_THRESHOLD = 0.05d;
+  private static final double ATTACH_ACTION_THRESHOLD = 0.5d;
   private final int nSignals;
   // private final boolean directionalCommunication;
   // private final boolean directionalAttach;
@@ -147,6 +147,11 @@ public class NumSelfAssemblyVSR extends AbstractSelfAssemblyVSR implements NumMu
         double m = outputs[i][aI.get()];
         if (m > ATTACH_ACTION_THRESHOLD)
           actions.add(
+              /*new AttractAndLinkAnchorable(
+              unitBody.get(i).anchorsOn(side),
+              unitBody.get((i + 1) % unitNumber),
+              1,
+              Anchor.Link.Type.RIGID));*/
               new AttractAndLinkClosestAnchorable(
                   unitBody.get(i).anchorsOn(side), 1, Anchor.Link.Type.RIGID));
         else if (m < -ATTACH_ACTION_THRESHOLD)

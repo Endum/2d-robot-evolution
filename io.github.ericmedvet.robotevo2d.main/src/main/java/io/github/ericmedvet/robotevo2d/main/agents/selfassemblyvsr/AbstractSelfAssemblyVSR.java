@@ -58,10 +58,10 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
               .orElseThrow();
       this.unitBody.add(body);
     }
-    this.setupUnits(actionPerformer);
+    this.setupUnitsLine(actionPerformer);
   }
 
-  private void setupUnits(ActionPerformer ap) {
+  private void setupUnitsSquare(ActionPerformer ap) {
     int sq = (int) Math.ceil(Math.sqrt(this.unitNumber));
     for (int i = 0; i < this.unitNumber; i++) {
       int x = i / sq;
@@ -71,6 +71,15 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
               this.unitBody.get(i),
               BoundingBox.Anchor.LU,
               new Point(x * voxelSideLength, y * voxelSideLength)),
+          this);
+    }
+  }
+
+  private void setupUnitsLine(ActionPerformer ap) {
+    for (int i = 0; i < this.unitNumber; i++) {
+      ap.perform(
+          new TranslateBodyAt(
+              this.unitBody.get(i), BoundingBox.Anchor.LL, new Point(i * voxelSideLength * 1.5)),
           this);
     }
   }
