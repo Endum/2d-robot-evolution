@@ -79,9 +79,7 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
     for (int i = 0; i < this.unitNumber; i++) {
       ap.perform(
           new TranslateBodyAt(
-              this.unitBody.get(i),
-              BoundingBox.Anchor.LL,
-              new Point(i * voxelSideLength * 1.5, 0)),
+              this.unitBody.get(i), BoundingBox.Anchor.LL, new Point(i * voxelSideLength * 1.5, 0)),
           this);
     }
   }
