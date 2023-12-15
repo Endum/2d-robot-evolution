@@ -81,7 +81,7 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
           new TranslateBodyAt(
               this.unitBody.get(i),
               BoundingBox.Anchor.LL,
-              new Point(i * voxelSideLength * 1.5, i * voxelSideLength * 1.5)),
+              new Point(i * voxelSideLength * 1.5, 0)),
           this);
     }
   }
