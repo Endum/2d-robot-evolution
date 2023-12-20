@@ -23,7 +23,7 @@ package io.github.ericmedvet.robotevo2d.main.builders;
 import io.github.ericmedvet.jgea.core.listener.Accumulator;
 import io.github.ericmedvet.jgea.core.listener.AccumulatorFactory;
 import io.github.ericmedvet.jgea.core.solver.Individual;
-import io.github.ericmedvet.jgea.core.solver.state.POSetPopulationState;
+import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.experimenter.Run;
 import io.github.ericmedvet.jgea.experimenter.RunOutcome;
 import io.github.ericmedvet.jgea.experimenter.Utils;
@@ -59,14 +59,16 @@ public class Misc {
   public static Function<List<Double>, List<Double>> doublesRandomizer(
       @Param(value = "randomGenerator", dNPM = "sim.defaultRG()") RandomGenerator randomGenerator,
       @Param(value = "range", dNPM = "sim.range(max=1.0;min=-1.0)") DoubleRange range) {
-    return values ->
-        values.stream().map(v -> range.denormalize(randomGenerator.nextDouble())).toList();
+    return values -> values.stream()
+        .map(v -> range.denormalize(randomGenerator.nextDouble()))
+        .toList();
   }
 
   @SuppressWarnings("unused")
   public static Function<Object, Object> fromBase64(@Param("s") String s) {
     return o -> {
-      try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64.getDecoder().decode(s));
+      try (ByteArrayInputStream bais =
+              new ByteArrayInputStream(Base64.getDecoder().decode(s));
           ObjectInputStream ois = new ObjectInputStream(bais)) {
         return ois.readObject();
       } catch (Throwable t) {
@@ -87,13 +89,12 @@ public class Misc {
     } catch (FileNotFoundException e) {
       throw new RuntimeException("Cannot find run outcome file %s".formatted(filePath));
     } catch (IOException e) {
-      throw new RuntimeException(
-          "Cannot read run outcome file %s due to: %s".formatted(filePath, e));
+      throw new RuntimeException("Cannot read run outcome file %s due to: %s".formatted(filePath, e));
     }
   }
 
   @SuppressWarnings("unused")
-  public static <A> AccumulatorFactory<POSetPopulationState<?, A, ?>, File, Run<?, ?, A, ?>> video(
+  public static <A> AccumulatorFactory<POCPopulationState<?, ?, A, ?>, File, Run<?, ?, A, ?>> video(
       @Param(value = "filePathTemplate", dS = "video-{index:%04d}.mp4") String filePathTemplate,
       @Param(value = "titleTemplate", dS = "run.index={index:%04d}") String titleTemplate,
       @Param(value = "w", dI = FILE_VIDEO_W) int w,
@@ -106,53 +107,38 @@ public class Misc {
       @Param("task") Task<A, ?> task,
       @Param(value = "engine", dNPM = "sim.engine()") Supplier<Engine> engineSupplier,
       @Param(value = "individual", dNPM = "ea.nf.best()")
-          Function<POSetPopulationState<?, A, ?>, Individual<?, A, ?>> individualFunction,
+          Function<POCPopulationState<?, ?, A, ?>, Individual<?, A, ?>> individualFunction,
       @Param(value = "", injection = Param.Injection.MAP) ParamMap map) {
-    return run ->
-        Accumulator.<POSetPopulationState<?, A, ?>>last()
-            .then(
-                state -> {
-                  // extract individual
-                  A a = individualFunction.apply(state).solution();
-                  // create file
-                  boolean tempFile = false;
-                  File file;
-                  try {
-                    if (filePathTemplate.isEmpty()) {
-                      tempFile = true;
-                      file = File.createTempFile("video", ".mp4");
-                      file.deleteOnExit();
-                    } else {
-                      String fileName = Utils.interpolate(filePathTemplate, run);
-                      file =
-                          io.github.ericmedvet.jgea.core.util.Misc.checkExistenceAndChangeName(
-                              new File(fileName));
-                    }
-                    // do video
-                    String videoName = Utils.interpolate(titleTemplate, run);
-                    VideoBuilder videoBuilder =
-                        new VideoBuilder(
-                            w,
-                            h,
-                            startTime,
-                            endTime,
-                            frameRate,
-                            codec,
-                            file,
-                            drawer.apply(videoName));
-                    L.info(
-                        "Doing video for run %d on file %s"
-                            .formatted(run.index(), tempFile ? "temp" : file.getAbsolutePath()));
-                    task.run(a, engineSupplier.get(), videoBuilder);
-                    file = videoBuilder.get();
-                    L.info(
-                        "Video done for run %d on file %s"
-                            .formatted(run.index(), tempFile ? "temp" : file.getAbsolutePath()));
-                    return file;
-                  } catch (IOException ex) {
-                    L.warning("Cannot make video: %s".formatted(ex));
-                  }
-                  return null;
-                });
+    return run -> Accumulator.<POCPopulationState<?, ?, A, ?>>last().then(state -> {
+      // extract individual
+      A a = individualFunction.apply(state).solution();
+      // create file
+      boolean tempFile = false;
+      File file;
+      try {
+        if (filePathTemplate.isEmpty()) {
+          tempFile = true;
+          file = File.createTempFile("video", ".mp4");
+          file.deleteOnExit();
+        } else {
+          String fileName = Utils.interpolate(filePathTemplate, run);
+          file = io.github.ericmedvet.jgea.core.util.Misc.checkExistenceAndChangeName(new File(fileName));
+        }
+        // do video
+        String videoName = Utils.interpolate(titleTemplate, run);
+        VideoBuilder videoBuilder =
+            new VideoBuilder(w, h, startTime, endTime, frameRate, codec, file, drawer.apply(videoName));
+        L.info("Doing video for run %d on file %s"
+            .formatted(run.index(), tempFile ? "temp" : file.getAbsolutePath()));
+        task.run(a, engineSupplier.get(), videoBuilder);
+        file = videoBuilder.get();
+        L.info("Video done for run %d on file %s"
+            .formatted(run.index(), tempFile ? "temp" : file.getAbsolutePath()));
+        return file;
+      } catch (IOException ex) {
+        L.warning("Cannot make video: %s".formatted(ex));
+      }
+      return null;
+    });
   }
 }
