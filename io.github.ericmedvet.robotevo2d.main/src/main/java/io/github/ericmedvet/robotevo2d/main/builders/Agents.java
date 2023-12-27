@@ -49,16 +49,12 @@ public class Agents {
         voxelSideLength,
         voxelMass,
         nSignals,
-        (List<NumericalDynamicalSystem<?>>)
-            Stream.generate(
-                    () ->
-                        numericalDynamicalSystemBuilder.apply(
-                            MultivariateRealFunction.varNames(
-                                "x", NumSelfAssemblyVSR.nOfInputs(sensors.size(), nSignals)),
-                            MultivariateRealFunction.varNames(
-                                "y", NumSelfAssemblyVSR.nOfOutputs(nSignals))))
-                .limit(unitNumber)
-                .toList(),
+        (List<NumericalDynamicalSystem<?>>) Stream.generate(() -> numericalDynamicalSystemBuilder.apply(
+                MultivariateRealFunction.varNames(
+                    "x", NumSelfAssemblyVSR.nOfInputs(sensors.size(), nSignals)),
+                MultivariateRealFunction.varNames("y", NumSelfAssemblyVSR.nOfOutputs(nSignals))))
+            .limit(unitNumber)
+            .toList(),
         Stream.generate(() -> List.copyOf(sensors)).limit(unitNumber).toList());
   }
 }

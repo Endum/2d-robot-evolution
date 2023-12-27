@@ -39,8 +39,7 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
   private final double voxelSideLength;
   private final double voxelMass;
 
-  public AbstractSelfAssemblyVSR(
-      int unitNumber, Voxel.Material material, double voxelSideLength, double voxelMass) {
+  public AbstractSelfAssemblyVSR(int unitNumber, Voxel.Material material, double voxelSideLength, double voxelMass) {
     this.unitNumber = unitNumber;
     this.material = material;
     this.unitBody = new ArrayList<>(unitNumber);
@@ -51,11 +50,10 @@ public abstract class AbstractSelfAssemblyVSR implements EmbodiedAgent {
   @Override
   public void assemble(ActionPerformer actionPerformer) throws ActionException {
     for (int i = 0; i < this.unitNumber; i++) {
-      Voxel body =
-          actionPerformer
-              .perform(new CreateVoxel(this.voxelSideLength, this.voxelMass, this.material), this)
-              .outcome()
-              .orElseThrow();
+      Voxel body = actionPerformer
+          .perform(new CreateVoxel(this.voxelSideLength, this.voxelMass, this.material), this)
+          .outcome()
+          .orElseThrow();
       this.unitBody.add(body);
     }
     this.setupUnitsLine(actionPerformer);
