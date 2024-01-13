@@ -25,7 +25,7 @@ import io.github.ericmedvet.jsdynsym.core.DoubleRange;
 import io.github.ericmedvet.mrsim2d.core.tasks.Outcome;
 import java.util.function.Function;
 
-@Discoverable(prefixTemplate = "sim|s.task.piling|p")
+@Discoverable(prefixTemplate = "sim|s.task.outcome|o")
 public class CustomOutcomeFunctions {
   private CustomOutcomeFunctions() {}
 
